@@ -39,36 +39,20 @@
 
 (defvar fuzzy-accept-length-difference 2)
 
-(defvar fuzzy-regexp-some-char (format "\\w\\{0,%s\\}" fuzzy-accept-length-difference))
-
 
 
-;;; Functions
+;;; Utilities
 
 (defun fuzzy-reverse-string (string)
   (apply 'string (nreverse (append string nil))))
 
-(defun fuzzy-regexp-compile (string)
-  (labels ((oddp (n) (eq (logand n 1) 1))
-           (evenp (n) (eq (logand n 1) 0))
-           (opt (n) (regexp-opt-charset (append (substring string
-                                                           (max 0 (- n 1))
-                                                           (min (length string) (+ n 2))) nil))))
-    (concat
-     "\\("
-     (loop for i below (length string)
-           for c = (if (evenp i) (opt i) fuzzy-regexp-some-char)
-           concat c)
-     "\\|"
-     (loop for i below (length string)
-           for c = (if (oddp i) (opt i) fuzzy-regexp-some-char)
-           concat c)
-     "\\)")))
+
 
-(defalias 'fuzzy-edit-distance 'fuzzy-jaro-winkler-distance)
+;;; Jaro-Winkler Distance
 
 (defun fuzzy-jaro-winkler-distance (s1 s2)
-  "http://en.wikipedia.org/wiki/Jaro-Winkler_distance"
+  "Compute Jaro-Winkler distance. See
+http://en.wikipedia.org/wiki/Jaro-Winkler_distance."
   (let* ((l1 (length s1))
          (l2 (length s2))
          (r (max 1 (1- (/ (max l1 l2) 2))))
@@ -88,19 +72,19 @@
                   (incf m)
                 and return nil)
           finally
-            (setq cs1 (nreverse cs1)
-                  cs2 (loop for i below l2
-                            for c = (aref seen i)
-                            if c collect c)))
+          (setq cs1 (nreverse cs1)
+                cs2 (loop for i below l2
+                          for c = (aref seen i)
+                          if c collect c)))
     (loop for c1 in cs1
           for c2 in cs2
-          if (not (char-equal c1 c2)) do
-            (incf tr))
+          if (not (char-equal c1 c2))
+          do (incf tr))
     (loop for i below (min m 5)
           for c1 across s1
           for c2 across s2
-          while (char-equal c1 c2) do
-            (incf p))
+          while (char-equal c1 c2)
+          do (incf p))
     (if (eq m 0)
         0.0
       (setq m (float m))
@@ -108,18 +92,31 @@
              (dw (+ dj (* p 0.1 (- 1 dj)))))
         dw))))
 
-;; this function should be compiled
+;; Make sure byte-compiled.
 (byte-compile 'fuzzy-jaro-winkler-distance)
 
-(defun fuzzy-match (s1 s2 &optional function)
-  (or function (setq function 'fuzzy-edit-distance))
+
+
+;;; Edit Distance
+
+(defalias 'fuzzy-edit-distance 'fuzzy-jaro-winkler-distance)
+
+
+
+;;; Fuzzy Matching
+
+(defun* fuzzy-match (s1 s2 &optional (function 'fuzzy-edit-distance))
   (and (<= (abs (- (length s1) (length s2)))
            fuzzy-accept-length-difference)
        (>= (funcall function s1 s2)
            (- 1 fuzzy-accept-error-rate))))
 
+
+
+;;; Fuzzy Completion
+
 (defun fuzzy-all-completions (string collection)
-  "all-completions family with fuzzy matching."
+  "`all-completions' with fuzzy matching."
   (loop with length = (length string)
         for str in collection
         for s = (substring str 0 (min (length str)
@@ -129,13 +126,34 @@
 
 
 
-;;; Search and Incremental Search
+;;; Fuzzy Search
 
+(defvar fuzzy-search-some-char-regexp
+  (format "\\w\\{0,%s\\}" fuzzy-accept-length-difference))
 (defvar fuzzy-search-cache nil)
 (defvar fuzzy-search-cache-string nil)
 
+(defun fuzzy-search-regexp-compile (string)
+  (labels ((oddp (n) (eq (logand n 1) 1))
+           (evenp (n) (eq (logand n 1) 0))
+           (opt (n) (regexp-opt-charset
+                     (append (substring string
+                                        (max 0 (- n 1))
+                                        (min (length string) (+ n 2)))
+                             nil))))
+    (concat
+     "\\("
+     (loop for i below (length string)
+           for c = (if (evenp i) (opt i) fuzzy-search-some-char-regexp)
+           concat c)
+     "\\|"
+     (loop for i below (length string)
+           for c = (if (oddp i) (opt i) fuzzy-search-some-char-regexp)
+           concat c)
+     "\\)")))
+
 (defun fuzzy-search-cache-activate ()
-  (setq fuzzy-search-cache (make-hash-table))
+  (setq fuzzy-search-cache (make-hash-table :weakness t))
   (setq fuzzy-search-cache-string nil))
 
 (defun fuzzy-search-cache-deactive ()
@@ -143,27 +161,23 @@
   (setq fuzzy-search-cache-string nil))
 
 (defun fuzzy-search-edit-distance (s1 s2)
-  (or (and fuzzy-search-cache
-           (cond
-            ((null fuzzy-search-cache-string)
-             (setq fuzzy-search-cache-string s1)
-             nil)
-            ((not (equal fuzzy-search-cache-string s1))
-             (setq fuzzy-search-cache-string s1)
-             (clrhash fuzzy-search-cache)
-             nil)
-            (t))
-           (gethash s2 fuzzy-search-cache))
+  (or (when fuzzy-search-cache
+        (cond ((null fuzzy-search-cache-string)
+               (setq fuzzy-search-cache-string s1))
+              ((not (equal fuzzy-search-cache-string s1))
+               (setq fuzzy-search-cache-string s1)
+               (clrhash fuzzy-search-cache)))
+        (gethash s2 fuzzy-search-cache))
       (let ((d (fuzzy-edit-distance s1 s2)))
-        (if fuzzy-search-cache
-            (puthash s2 d fuzzy-search-cache))
+        (when fuzzy-search-cache
+          (puthash s2 d fuzzy-search-cache))
         d)))
 
 (defun fuzzy-search-match (s1 s2)
   (fuzzy-match s1 s2 'fuzzy-search-edit-distance))
 
 (defun fuzzy-search-forward (string &optional bound noerror count)
-  (let* ((regexp (fuzzy-regexp-compile string))
+  (let* ((regexp (fuzzy-search-regexp-compile string))
          match-data)
     (save-excursion
       (while (and (null match-data)
@@ -176,13 +190,13 @@
       (goto-char (match-end 1)))))
 
 (defun fuzzy-search-backward (string &optional bound noerror count)
-  (let* ((regexp (fuzzy-regexp-compile string))
+  (let* ((regexp (fuzzy-search-regexp-compile string))
          match-data begin end)
     (save-excursion
       (while (and (null match-data)
                   (re-search-backward regexp bound t))
         (setq begin (match-beginning 1)
-              end (match-end 1))
+              end   (match-end 1))
         (store-match-data nil)
         (goto-char (max (point-min) (- begin (* (length string) 2))))
         (while (re-search-forward regexp end t)
@@ -197,11 +211,16 @@
           (goto-char (match-beginning 1)))
       (store-match-data nil)))))
 
+
+
+;;; Fuzzy Incremental Search
+
 (defvar fuzzy-isearch nil)
 (defvar fuzzy-isearch-failed-count 0)
 (defvar fuzzy-isearch-enabled 'on-failed)
 (defvar fuzzy-isearch-original-search-fun nil)
-(defvar fuzzy-isearch-prefix "[FUZZY] ")
+(defvar fuzzy-isearch-message-prefix
+  (concat (propertize "[FUZZY]" 'face 'bold) " "))
 
 (defun fuzzy-isearch-activate ()
   (setq fuzzy-isearch t)
@@ -223,10 +242,8 @@
              (and (eq fuzzy-isearch-enabled 'on-failed)
                   (null isearch-success)
                   isearch-wrapped
-                  (> (setq fuzzy-isearch-failed-count (1+ fuzzy-isearch-failed-count))
-                     1)))
+                  (> (incf fuzzy-isearch-failed-count) 1)))
          (unless fuzzy-isearch
-           ;(goto-char isearch-opoint)
            (fuzzy-isearch-activate))
          (if isearch-forward 'fuzzy-search-forward 'fuzzy-search-backward))
         (t
@@ -248,7 +265,7 @@
 
 (defadvice isearch-message-prefix (after fuzzy-isearch-message-prefix activate)
   (if fuzzy-isearch
-      (setq ad-return-value (concat fuzzy-isearch-prefix ad-return-value))
+      (setq ad-return-value (concat fuzzy-isearch-message-prefix ad-return-value))
     ad-return-value))
 
 (provide 'fuzzy)
