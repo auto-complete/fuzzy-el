@@ -25,7 +25,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl)
 (require 'regexp-opt)
 
 (defgroup fuzzy nil
@@ -322,7 +322,7 @@ scoring between S1 and S2. The score must be between 0.0 and
      ((let ((case-fold-search nil))
         (eq (string-match "[[:upper:]]" string skip-end) skip-end))
       (let ((ups (let ((case-fold-search nil))
-                   (fuzzy-quicksilver-count-matches-in-string
+                   (fuzzy-count-matches-in-string
                     "[[:upper:]]" string skip-start skip-end))))
         (+ ups (* (- skipped ups) 0.15))))
      (t skipped))))
