@@ -345,7 +345,7 @@ scoring between S1 and S2. The score must be between 0.0 and
           sum (+ matched (- skipped penalty)) into point
           finally return
           (let* ((length (length string))
-                 (cl-rest (- length end)))
+                 (rest (- length end)))
             (/ (+ point (* rest 0.9)) (float length)))))
    (t 0.0)))
 
