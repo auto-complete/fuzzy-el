@@ -385,5 +385,9 @@ scoring between S1 and S2. The score must be between 0.0 and
           do (tick)
           finally return (nreverse new-list))))
 
+;;; _
 (provide 'fuzzy)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; fuzzy.el ends here
