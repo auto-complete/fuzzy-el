@@ -25,7 +25,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'regexp-opt)
 
 (defgroup fuzzy nil
