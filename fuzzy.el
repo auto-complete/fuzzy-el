@@ -1,4 +1,4 @@
-;;; fuzzy.el --- Fuzzy Matching
+;;; fuzzy.el --- Fuzzy Matching                    -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  Tomohiro Matsuyama
 
@@ -218,7 +218,7 @@ The score must be between 0.0 and 1.0."
               concat c)
      "\\)")))
 
-(defun fuzzy-search-forward (string &optional bound noerror count)
+(defun fuzzy-search-forward (string &optional bound _noerror _count)
   (let ((regexp (fuzzy-search-regexp-compile string))
         match-data)
     (save-excursion
@@ -231,7 +231,7 @@ The score must be between 0.0 and 1.0."
       (store-match-data match-data)
       (goto-char (match-end 1)))))
 
-(defun fuzzy-search-backward (string &optional bound noerror count)
+(defun fuzzy-search-backward (string &optional bound _noerror _count)
   (let* ((regexp (fuzzy-search-regexp-compile string))
          match-data begin end)
     (save-excursion
