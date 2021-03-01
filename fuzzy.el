@@ -34,7 +34,6 @@
   :prefix "fuzzy-")
 
 
-
 ;;; Utilities
 
 (defun fuzzy-current-time-float ()
@@ -88,7 +87,6 @@
            count matched))
 
 
-
 ;;; Jaro-Winkler Distance
 
 (defun fuzzy-jaro-winkler-distance (s1 s2)
@@ -142,7 +140,6 @@ http://en.wikipedia.org/wiki/Jaro-Winkler_distance."
 (defalias 'fuzzy-jaro-winkler-score 'fuzzy-jaro-winkler-distance)
 
 
-
 ;;; Fuzzy Matching
 
 (defcustom fuzzy-match-score-function 'fuzzy-jaro-winkler-score
@@ -180,7 +177,6 @@ scoring between S1 and S2. The score must be between 0.0 and
            (- 1 fuzzy-match-accept-error-rate))))
 
 
-
 ;;; Fuzzy Completion
 
 (defun fuzzy-all-completions (string collection)
@@ -192,7 +188,6 @@ scoring between S1 and S2. The score must be between 0.0 and
            collect str))
 
 
-
 ;;; Fuzzy Search
 
 (defvar fuzzy-search-some-char-regexp
@@ -253,7 +248,6 @@ scoring between S1 and S2. The score must be between 0.0 and
         (store-match-data nil)))))
 
 
-
 ;;; Fuzzy Incremental Search
 
 (defvar fuzzy-isearch nil)
@@ -308,7 +302,6 @@ scoring between S1 and S2. The score must be between 0.0 and
     ad-return-value))
 
 
-
 ;;; QuickSilver's Abbreviation Scoring
 
 (defun fuzzy-quicksilver-make-abbrev-regexp (abbrev)
