@@ -242,11 +242,11 @@ scoring between S1 and S2. The score must be between 0.0 and
             (goto-char (1+ (match-beginning 1)))))
         (unless match-data
           (goto-char begin)))
-    (if match-data
-        (progn
-          (store-match-data match-data)
-          (goto-char (match-beginning 1)))
-      (store-match-data nil)))))
+      (if match-data
+          (progn
+            (store-match-data match-data)
+            (goto-char (match-beginning 1)))
+        (store-match-data nil)))))
 
 
 
