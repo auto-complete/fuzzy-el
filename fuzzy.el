@@ -49,7 +49,7 @@
   (declare (indent 1))
   (let ((start (gensym "START")))
     `(let ((,start (fuzzy-current-time-float)))
-       (flet ((,elapsed-name () (- (fuzzy-current-time-float) ,start)))
+       (cl-flet ((,elapsed-name () (- (fuzzy-current-time-float) ,start)))
          ,@body))))
 
 (defun* fuzzy-add-to-list-as-sorted (list-var value &key (test '<) (key 'identity))
@@ -72,7 +72,7 @@
   (let ((elapsed (gensym "ELAPSED")))
     `(catch 'timeout
        (fuzzy-with-stopwatch (,elapsed)
-         (flet ((,tick-name ()
+         (cl-flet ((,tick-name ()
                   (when (and ,timeout (< ,timeout (,elapsed)))
                     (throw 'timeout ,timeout-result))))
            ,@body)))))
@@ -196,7 +196,7 @@ scoring between S1 and S2. The score must be between 0.0 and
   (format ".\\{0,%s\\}" fuzzy-match-accept-length-difference))
 
 (defun fuzzy-search-regexp-compile (string)
-  (flet ((opt (n)
+  (cl-flet ((opt (n)
            (regexp-opt-charset
             (append (substring string
                                (max 0 (- n 1))
