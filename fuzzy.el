@@ -44,14 +44,17 @@
        (/ (float (third time))
           1000000))))
 
-(cl-defmacro fuzzy-with-stopwatch ((&optional (elapsed-name 'elapsed)) &body body)
+(cl-defmacro fuzzy-with-stopwatch
+    ((&optional (elapsed-name 'elapsed))
+     &body body)
   (declare (indent 1))
   (let ((start (gensym "START")))
     `(let ((,start (fuzzy-current-time-float)))
        (cl-flet ((,elapsed-name () (- (fuzzy-current-time-float) ,start)))
          ,@body))))
 
-(cl-defun fuzzy-add-to-list-as-sorted (list-var value &key (test '<) (key 'identity))
+(cl-defun fuzzy-add-to-list-as-sorted
+    (list-var value &key (test '<) (key 'identity))
   (let ((list (symbol-value list-var)))
     (if (or (null list)
             (funcall test
@@ -66,7 +69,9 @@
         (setq list (cdr list)))
       (setcdr list (cons value (cdr list))))))
 
-(cl-defmacro fuzzy-with-timeout ((timeout &optional timeout-result (tick-name 'tick)) &body body)
+(cl-defmacro fuzzy-with-timeout
+    ((timeout &optional timeout-result (tick-name 'tick))
+     &body body)
   (declare (indent 1))
   (let ((elapsed (gensym "ELAPSED")))
     `(catch 'timeout
@@ -183,7 +188,8 @@ scoring between S1 and S2. The score must be between 0.0 and
   "`all-completions' with fuzzy matching."
   (cl-loop with length = (length string)
            for str in collection
-	   for len = (min (length str) (+ length fuzzy-match-accept-length-difference))
+	   for len = (min (length str)
+                          (+ length fuzzy-match-accept-length-difference))
            if (fuzzy-match string (substring str 0 len))
            collect str))
 
@@ -298,7 +304,8 @@ scoring between S1 and S2. The score must be between 0.0 and
 
 (defadvice isearch-message-prefix (after fuzzy-isearch-message-prefix activate)
   (if fuzzy-isearch
-      (setq ad-return-value (concat fuzzy-isearch-message-prefix ad-return-value))
+      (setq ad-return-value
+            (concat fuzzy-isearch-message-prefix ad-return-value))
     ad-return-value))
 
 
