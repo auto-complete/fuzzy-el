@@ -272,7 +272,9 @@ scoring between S1 and S2. The score must be between 0.0 and
   (setq fuzzy-isearch-failed-count 0))
 
 (defun fuzzy-isearch ()
-  (cond ((or isearch-word isearch-regexp)
+  (cond ((or (bound-and-true-p isearch-word)            ; emacs <  25.1
+             (bound-and-true-p isearch-regexp-function) ; emacs >= 25.1
+             isearch-regexp)
          (isearch-search-fun-default))
         ((or fuzzy-isearch
              (eq fuzzy-isearch-enabled 'always)
