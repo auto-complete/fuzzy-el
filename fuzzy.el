@@ -95,8 +95,8 @@
 ;;; Jaro-Winkler Distance
 
 (defun fuzzy-jaro-winkler-distance (s1 s2)
-  "Compute Jaro-Winkler distance. See
-http://en.wikipedia.org/wiki/Jaro-Winkler_distance."
+  "Compute Jaro-Winkler distance.
+See http://en.wikipedia.org/wiki/Jaro-Winkler_distance."
   (let* ((l1 (length s1))
          (l2 (length s2))
          (r (max 1 (1- (/ (max l1 l2) 2))))
@@ -173,9 +173,9 @@ http://en.wikipedia.org/wiki/Jaro-Winkler_distance."
                  fuzzy-match-score-cache))))
 
 (cl-defun fuzzy-match (s1 s2 &optional (function fuzzy-match-score-function))
-  "Return t if S1 and S2 are matched. FUNCTION is a function
-scoring between S1 and S2. The score must be between 0.0 and
-1.0."
+  "Return t if S1 and S2 are matched.
+FUNCTION is a function scoring between S1 and S2.
+The score must be between 0.0 and 1.0."
   (and (<= (abs (- (length s1) (length s2)))
            fuzzy-match-accept-length-difference)
        (>= (fuzzy-match-score s1 s2 function)
@@ -185,7 +185,7 @@ scoring between S1 and S2. The score must be between 0.0 and
 ;;; Fuzzy Completion
 
 (defun fuzzy-all-completions (string collection)
-  "`all-completions' with fuzzy matching."
+  "Like `all-completions' but with fuzzy matching."
   (cl-loop with length = (length string)
            for str in collection
 	   for len = (min (length str)
