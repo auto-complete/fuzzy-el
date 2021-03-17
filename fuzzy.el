@@ -4,6 +4,8 @@
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: convenience
+;; URL: https://github.com/auto-complete/fuzzy-el
+;; Package-Requires: ((emacs "24.3"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -188,7 +190,7 @@ The score must be between 0.0 and 1.0."
   "Like `all-completions' but with fuzzy matching."
   (cl-loop with length = (length string)
            for str in collection
-	   for len = (min (length str)
+       for len = (min (length str)
                           (+ length fuzzy-match-accept-length-difference))
            if (fuzzy-match string (substring str 0 len))
            collect str))
