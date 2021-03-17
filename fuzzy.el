@@ -5,6 +5,8 @@
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: convenience
 ;; URL: https://github.com/auto-complete/fuzzy-el
+;; Keywords: lisp fuzzy
+;; Version: 0.3
 ;; Package-Requires: ((emacs "24.3"))
 
 ;; This program is free software; you can redistribute it and/or modify
