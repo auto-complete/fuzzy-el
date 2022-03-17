@@ -1,29 +1,30 @@
 SHELL := /usr/bin/env bash
 
 EMACS ?= emacs
-CASK ?= cask
-
-PKG-FILES := fuzzy.el
+EASK ?= eask
 
 TEST-FILES := $(shell ls test/fuzzy-*.el)
 
-.PHONY: clean checkdoc lint unix-build unix-compile	unix-test
+.PHONY: clean checkdoc lint install compile unix-test
 
-unix-ci: clean unix-build unix-compile
+ci: clean install compile
 
-unix-build:
-	$(CASK) install
+clean:
+	@echo "Cleaning..."
+	$(EASK) clean-all
 
-unix-compile:
+install:
+	@echo "Installing..."
+	$(EASK) install
+
+compile:
 	@echo "Compiling..."
-	@$(CASK) $(EMACS) -Q --batch \
-		-L . \
-		--eval '(setq byte-compile-error-on-warn t)' \
-		-f batch-byte-compile $(PKG-FILES)
+	$(EASK) compile
+
+lint:
+	@echo "Linting..."
+	$(EASK) lint
 
 unix-test:
 	@echo "Testing..."
-	$(CASK) exec ert-runner -L . $(LOAD-TEST-FILES) -t '!no-win' -t '!org'
-
-clean:
-	rm -rf .cask *.elc
+	$(EASK) exec ert-runner -L . $(LOAD-TEST-FILES) -t '!no-win' -t '!org'
