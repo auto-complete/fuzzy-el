@@ -2,6 +2,9 @@
          "0.3"
          "Fuzzy Matching")
 
+(website-url "https://github.com/auto-complete/fuzzy-el")
+(keywords "lisp" "fuzzy")
+
 (package-file "fuzzy.el")
 
 (source "gnu")
