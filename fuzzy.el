@@ -1,6 +1,7 @@
 ;;; fuzzy.el --- Fuzzy Matching                    -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2010-2015  Tomohiro Matsuyama
+;; Copyright (c) 2020-2023 Jen-Chieh Shen
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: convenience
