@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "fuzzy"
          "0.3"
          "Fuzzy Matching")
